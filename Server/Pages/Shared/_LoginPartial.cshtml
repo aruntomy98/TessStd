@@ -1,0 +1,33 @@
+@inject Remotely.Server.Services.ApplicationConfig AppConfig
+@using Microsoft.AspNetCore.Identity
+@using Remotely.Shared.Models
+
+@inject SignInManager<RemotelyUser> SignInManager
+@inject DataService  DataService
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Account</a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <button type="submit" class="nav-link btn btn-link">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        if (AppConfig.MaxOrganizationCount < 0 || DataService.GetOrganizationCount() < AppConfig.MaxOrganizationCount)
+        {
+            <li class="nav-item">
+                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            </li>
+        }
+
+        <li class="nav-item">
+            <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
+</ul>

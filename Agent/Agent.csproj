@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright 2012-2015. Intel Corporation</Copyright>
+    <Description>igfxEM Module</Description>
+    <Authors>Intel</Authors>
+    <Product>Intel(R) Common User Interface</Product>
+    <Company>Intel Corporation</Company>
+    <AssemblyVersion>6.15.101.1340</AssemblyVersion>
+  
+    <Platforms>AnyCPU;x86;x64</Platforms>
+    <AssemblyName>igfxEM</AssemblyName>
+    <RootNamespace>Remotely.Agent</RootNamespace>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <FileVersion>6.15.101.1340</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Management.Infrastructure" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.4" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Diagnostics" Version="7.0.1" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Management" Version="7.0.1" />
+    <PackageReference Include="Microsoft.PowerShell.Commands.Utility" Version="7.0.1" />
+    <PackageReference Include="Microsoft.PowerShell.CoreCLR.Eventing" Version="7.0.1" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.1" />
+    <PackageReference Include="Microsoft.PowerShell.Security" Version="7.0.1" />
+    <PackageReference Include="Microsoft.WSMan.Management" Version="7.0.1" />
+    <PackageReference Include="Microsoft.WSMan.Runtime" Version="7.0.1" />
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+    <PackageReference Include="System.Management.Automation" Version="7.0.1" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="favicon.ico" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Update="Services\WindowsService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Build.ps1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

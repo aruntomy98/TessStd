@@ -1,0 +1,210 @@
+﻿@page
+@using Remotely.Shared.Models
+@inject Remotely.Server.Services.ApplicationConfig AppConfig
+@inject UserManager<RemotelyUser> UserManager
+@model Remotely.Server.Pages.RemoteControlModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, user-scalable=no" />
+    <link rel="icon" href="~/favicon.ico" />
+    <title>Tess Remote Control</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link href="~/manifest-rc.json" rel="manifest" />
+    <meta name="description" content="Remote access tools designed to get things done quickly." />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="~/css/remote-control.css" rel="stylesheet" asp-append-version="true" />
+    @if (AppConfig.Theme.ToLower() == "light")
+    {
+        <link href="~/css/remote-control-light.css" rel="stylesheet" asp-append-version="true" />
+    }
+    else
+    {
+        <link href="~/css/remote-control-dark.css" rel="stylesheet" asp-append-version="true" />
+    }
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        switch (user.UserOptions.Theme)
+        {
+            case Remotely.Shared.Enums.Theme.Light:
+                <link href="~/css/remote-control-light.css" rel="stylesheet" asp-append-version="true" />
+                break;
+            case Remotely.Shared.Enums.Theme.Dark:
+                <link href="~/css/remote-control-dark.css" rel="stylesheet" asp-append-version="true" />
+                break;
+            default:
+                break;
+        }
+    }
+    else
+    {
+        if (AppConfig.Theme.ToLower() == "light")
+        {
+            <link href="~/css/remote-control-light.css" rel="stylesheet" asp-append-version="true" />
+        }
+        else
+        {
+            <link href="~/css/remote-control-dark.css" rel="stylesheet" asp-append-version="true" />
+        }
+    }
+
+
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+
+    <environment include="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/signalr/signalr.js"></script>
+        <script src="~/lib/signalr/msgpack5.js"></script>
+        <script src="~/lib/signalr/signalr-protocol-msgpack.js"></script>
+        <script src="~/lib/msgpack/msgpack.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/signalr/signalr.min.js"></script>
+        <script src="~/lib/signalr/msgpack5.min.js"></script>
+        <script src="~/lib/signalr/signalr-protocol-msgpack.min.js"></script>
+        <script src="~/lib/msgpack/msgpack.min.js"></script>
+    </environment>
+</head>
+<body>
+    <div class="remotely-header" title="Tess">
+        <div class="logo-title">
+            Tess
+        </div>
+        <div class="logo-subtitle"></div>
+    </div>
+
+    <button id="menuButton">
+        <i class="fas fa-chevron-circle-right"></i>
+    </button>
+
+    <div id="menuFrame">
+
+        <div class="menu-options-header">
+            Actions
+        </div>
+
+        <div>
+            <button id="clipboardTransferButton" class="option-button">Clipboard  <i class="fas fa-clipboard"></i></button>
+            <button id="blockInputButton" class="option-button">Block Remote Input <i class="fas fa-mouse"></i></button>
+            <button id="inviteButton" class="option-button">Invite Others  <i class="fas fa-user-plus"></i></button>
+            <button id="audioButton" class="option-button">Audio <i class="fas fa-volume-up"></i></button>
+            <button id="fileTransferButton" class="option-button">File Transfer  <i class="fas fa-file-upload"></i></button>
+            <button id="ctrlAltDelButton" class="option-button">Ctrl+Alt+Del <i class="fas fa-sign-in-alt"></i></button>
+            <button id="keyboardButton" hidden="hidden" class="option-button">Keyboard  <i class="fas fa-keyboard"></i></button>
+            <button id="disconnectButton" class="option-button">Disconnect <i class="fas fa-window-close"></i></button>
+        </div>
+
+
+        <div class="menu-options-header">
+            View
+        </div>
+
+        <div>
+            <button id="changeScreenButton" class="option-button">Monitors <i class="fas fa-desktop"></i></button>
+            <button id="fitToScreenButton" class="toggled option-button">Fit <i class="fas fa-expand"></i></button>
+            <button id="qualityButton" class="option-button">Quality <i class="far fa-image"></i></button>
+        </div>
+
+        <div class="menu-options-header">
+            Windows Session
+        </div>
+        <div>
+            <select id="windowsSessionSelect" 
+                    class="option-button" 
+                    style="height: 30px; width: 90%; margin: 5px 0;"></select>
+        </div>
+
+        <div style="margin-top:15px;">
+            <span>Connection: </span>
+            <i id="connectionRelayedIcon" class="fas fa-wifi connection-icon" title="Connection is relayed"></i>
+            <i id="connectionP2PIcon" class="fas fa-wifi connection-icon" title="Connection is peer-to-peer" style="display:none"></i>
+        </div>
+
+    </div>
+
+    <div id="screenSelectBar" class="horizontal-button-bar">
+
+    </div>
+
+    <div id="qualityBar" class="horizontal-button-bar">
+        <div style="color:white; font-size:12px">
+            Image Quality
+        </div>
+        <div>
+            <input id="qualityRangeInput" value="60" max="100" class="form-control-range" type="range" />
+            <div style="color:white; font-size:12px; text-align: left">
+                <input id="autoAdjustQualityCheckBox" type="checkbox" checked />
+                <label for="autoAdjustQualityCheckBox">Auto Adjust</label>
+            </div>
+        </div>
+    </div>
+
+    <div id="clipboardTransferBar" class="horizontal-button-bar">
+        <div style="color:white; font-size:12px">
+            Shared Clipboard
+        </div>
+        <div style="color:white; font-size:12px;">
+            <button id="typeClipboardButton" class="horizontal-bar-button">Type Clipboard</button>
+        </div>
+    </div>
+
+    <div id="connectBox">
+        <h3>Connect to a client:</h3>
+        <div class="form-block">
+            <label>Your Name (shown to client): </label>
+            <br />
+            <input id="nameInput" type="text" />
+        </div>
+        <div class="form-block">
+            <label>Session ID: </label>
+            <br />
+            <input id="sessionIDInput" type="text" pattern="[0-9 ]+" />
+        </div>
+        <div class="right-aligned">
+            <button id="connectButton">Connect</button>
+        </div>
+        <div id="statusMessage" class="status-message">
+
+        </div>
+    </div>
+
+
+    <div id="screenViewerWrapper" class="center-aligned">
+        <canvas id="screenViewer" hidden="hidden"></canvas>
+        <input id="fileTransferInput" hidden="hidden" type="file" multiple />
+        <textarea id="touchKeyboardTextArea" value=" #"> #</textarea>
+    </div>
+
+    <div id="toastsWrapper">
+
+    </div>
+
+    <div id="fileTransferDiv" hidden="hidden">
+        <span id="fileTransferNameSpan" class="mr-1 font-weight-bold" style="vertical-align: middle;"></span>
+        <progress id="fileTransferProgress" style="vertical-align: middle; width: 100%"></progress>
+    </div>
+
+    <footer>
+        <div class="footer-wrapper">
+            <p>&copy; @DateTimeOffset.Now.Year - Tess Software</p>
+        </div>
+    </footer>
+    <script type="module" src="~/scripts/RemoteControl/Main.js">
+    </script>
+    <script>
+        window.onload = () => {
+            Remotely.Init();
+        }
+    </script>
+</body>
+</html>
